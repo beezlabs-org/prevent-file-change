@@ -5,7 +5,7 @@ inputs:
   pattern:
     required: true
     description: 'JavaScript regular expression matching filenames (including path) of files which must not be changed'
-  trustedAuthors:
+  trusted-authors:
     required: false
     description: 'Always trust pull request authors included in this comma separated list, e.g.: user1, user2, user3'
   token:

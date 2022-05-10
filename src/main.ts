@@ -5,7 +5,7 @@ import {context} from '@actions/github'
 
 async function run(): Promise<void> {
   try {
-    const trustedAuthors: string = core.getInput('trustedAuthors')
+    const trustedAuthors: string = core.getInput('trusted-authors')
     const pullRequestAuthor: string = context.actor
     const eventName: string = context.eventName
     core.debug(
