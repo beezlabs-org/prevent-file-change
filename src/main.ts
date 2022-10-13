@@ -6,6 +6,8 @@ import * as PatternMatcher from './pattern-matcher'
 async function run(): Promise<void> {
   try {
     const trustedAuthors = core.getInput('trusted-authors')
+    const pattern = core.getInput('pattern', {required: true})
+    const githubToken = core.getInput('token', {required: true})
 
     core.debug('Inputs received')
 
@@ -21,7 +23,6 @@ async function run(): Promise<void> {
         `${pullRequestAuthor} is a trusted author and is allowed to modify any matching files.`
       )
     } else if (eventName === 'pull_request') {
-      const githubToken = core.getInput('token', {required: true})
       const gitHubService = new GitHubService(githubToken)
       const pullRequestNumber = context.payload?.pull_request?.number || 0
       if (pullRequestNumber) {
@@ -30,7 +31,6 @@ async function run(): Promise<void> {
           context.repo.repo,
           pullRequestNumber
         )
-        const pattern = core.getInput('pattern', {required: true})
         await PatternMatcher.checkChangedFilesAgainstPattern(files, pattern)
       } else {
         core.setFailed('Pull request number is missing in github event payload')
