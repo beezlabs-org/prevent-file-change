@@ -1,8 +1,8 @@
 {
-  "name": "typescript-action",
-  "version": "0.0.0",
+  "name": "prevent-file-change",
+  "version": "1.0.0",
   "private": true,
-  "description": "TypeScript template action",
+  "description": "Fail a pull request workflow if certain files are changed",
   "main": "lib/main.js",
   "scripts": {
     "build": "tsc",
@@ -15,15 +15,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/actions/typescript-action.git"
+    "url": "git+https://github.com/beezlabs-org/prevent-file-change.git"
   },
   "keywords": [
     "actions",
     "node",
     "setup"
   ],
-  "author": "",
-  "license": "MIT",
+  "author": "Sayak Mukhopadhyay <sayak@beezlabs.com>",
   "dependencies": {
     "@actions/core": "^1.10.0",
     "@actions/github": "^5.1.1"

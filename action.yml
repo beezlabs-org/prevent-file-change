@@ -1,17 +1,17 @@
-name: 'Prevent file change in PR'
-description: 'Action to fail a PR if files have changed'
-author: 'Beez Innovation Labs'
+name: Prevent file change in PR
+description: Fail a pull request workflow if certain files are changed
+author: Beez Innovation Labs
 inputs:
   pattern:
     required: true
-    description: 'JavaScript regular expression matching filenames (including path) of files which must not be changed'
+    description: JavaScript regular expression matching filenames (including path) of files which must not be changed
   trusted-authors:
     required: false
     description: 'Always trust pull request authors included in this comma separated list, e.g.: user1, user2, user3'
   token:
     required: true
-    description: 'Token to access the repository'
+    description: Token to access the repository
     default: ${{ github.token }}
 runs:
-  using: 'node16'
-  main: 'dist/index.js'
+  using: node16
+  main: dist/index.js
