@@ -1,7 +1,7 @@
 import * as core from '@actions/core'
 import {context} from '@actions/github'
 import {GitHubService, IFile} from './github-services'
-import {PatternMatcher} from './pattern-matcher'
+import * as PatternMatcher from './pattern-matcher'
 
 async function run(): Promise<void> {
   try {
@@ -31,8 +31,7 @@ async function run(): Promise<void> {
           pullRequestNumber
         )
         const pattern = core.getInput('pattern', {required: true})
-        const patternMatcher = new PatternMatcher()
-        await patternMatcher.checkChangedFilesAgainstPattern(files, pattern)
+        await PatternMatcher.checkChangedFilesAgainstPattern(files, pattern)
       } else {
         core.setFailed('Pull request number is missing in github event payload')
       }
