@@ -5,15 +5,15 @@ import {PatternMatcher} from './pattern-matcher'
 
 async function run(): Promise<void> {
   try {
-    const trustedAuthors: string = core.getInput('trusted-authors')
+    const trustedAuthors = core.getInput('trusted-authors')
     const actionsStepDebug = process.env['ACTIONS_STEP_DEBUG'] === 'true'
 
     core.debug('Inputs received')
     core.debug(`ACTIONS_STEP_DEBUG: ${actionsStepDebug}`)
 
     if (actionsStepDebug) {
-      const pullRequestAuthor: string = context.actor
-      const eventName: string = context.eventName
+      const pullRequestAuthor = context.actor
+      const eventName = context.eventName
 
       core.debug(
         `Event='${eventName}', Author='${pullRequestAuthor}', Trusted Authors='${trustedAuthors}'`
@@ -24,17 +24,16 @@ async function run(): Promise<void> {
           `${pullRequestAuthor} is a trusted author and is allowed to modify any matching files.`
         )
       } else if (eventName === 'pull_request') {
-        const githubToken: string = core.getInput('token', {required: true})
+        const githubToken = core.getInput('token', {required: true})
         const gitHubService = new GitHubService(githubToken)
-        const pullRequestNumber: number =
-          context.payload?.pull_request?.number || 0
+        const pullRequestNumber = context.payload?.pull_request?.number || 0
         if (pullRequestNumber) {
           const files: IFile[] = await gitHubService.getChangedFiles(
             context.repo.owner,
             context.repo.repo,
             pullRequestNumber
           )
-          const pattern: string = core.getInput('pattern', {required: true})
+          const pattern = core.getInput('pattern', {required: true})
           const patternMatcher = new PatternMatcher()
           await patternMatcher.checkChangedFilesAgainstPattern(files, pattern)
         } else {
@@ -48,7 +47,7 @@ async function run(): Promise<void> {
         )
       }
     }
-  } catch (error: unknown) {
+  } catch (error) {
     if (error instanceof Error) {
       core.setFailed(error.message)
     } else {
@@ -64,9 +63,7 @@ export async function isTrustedAuthor(
   if (!trustedAuthors) {
     return false
   }
-  const authors: string[] = trustedAuthors
-    .split(',')
-    .map((author: string) => author.trim())
+  const authors = trustedAuthors.split(',').map(author => author.trim())
   return authors.includes(pullRequestAuthor)
 }
 
