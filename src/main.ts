@@ -6,46 +6,40 @@ import {PatternMatcher} from './pattern-matcher'
 async function run(): Promise<void> {
   try {
     const trustedAuthors = core.getInput('trusted-authors')
-    const actionsStepDebug = process.env['ACTIONS_STEP_DEBUG'] === 'true'
 
     core.debug('Inputs received')
-    core.debug(`ACTIONS_STEP_DEBUG: ${actionsStepDebug}`)
 
-    if (actionsStepDebug) {
-      const pullRequestAuthor = context.actor
-      const eventName = context.eventName
+    const pullRequestAuthor = context.actor
+    const eventName = context.eventName
 
-      core.debug(
-        `Event='${eventName}', Author='${pullRequestAuthor}', Trusted Authors='${trustedAuthors}'`
+    core.debug(
+      `Event='${eventName}', Author='${pullRequestAuthor}', Trusted Authors='${trustedAuthors}'`
+    )
+
+    if (await isTrustedAuthor(pullRequestAuthor, trustedAuthors)) {
+      core.info(
+        `${pullRequestAuthor} is a trusted author and is allowed to modify any matching files.`
       )
-
-      if (await isTrustedAuthor(pullRequestAuthor, trustedAuthors)) {
-        core.info(
-          `${pullRequestAuthor} is a trusted author and is allowed to modify any matching files.`
+    } else if (eventName === 'pull_request') {
+      const githubToken = core.getInput('token', {required: true})
+      const gitHubService = new GitHubService(githubToken)
+      const pullRequestNumber = context.payload?.pull_request?.number || 0
+      if (pullRequestNumber) {
+        const files: IFile[] = await gitHubService.getChangedFiles(
+          context.repo.owner,
+          context.repo.repo,
+          pullRequestNumber
         )
-      } else if (eventName === 'pull_request') {
-        const githubToken = core.getInput('token', {required: true})
-        const gitHubService = new GitHubService(githubToken)
-        const pullRequestNumber = context.payload?.pull_request?.number || 0
-        if (pullRequestNumber) {
-          const files: IFile[] = await gitHubService.getChangedFiles(
-            context.repo.owner,
-            context.repo.repo,
-            pullRequestNumber
-          )
-          const pattern = core.getInput('pattern', {required: true})
-          const patternMatcher = new PatternMatcher()
-          await patternMatcher.checkChangedFilesAgainstPattern(files, pattern)
-        } else {
-          core.setFailed(
-            'Pull request number is missing in github event payload'
-          )
-        }
+        const pattern = core.getInput('pattern', {required: true})
+        const patternMatcher = new PatternMatcher()
+        await patternMatcher.checkChangedFilesAgainstPattern(files, pattern)
       } else {
-        core.setFailed(
-          `Only pull_request events are supported. Event was: ${eventName}`
-        )
+        core.setFailed('Pull request number is missing in github event payload')
       }
+    } else {
+      core.setFailed(
+        `Only pull_request events are supported. Event was: ${eventName}`
+      )
     }
   } catch (error) {
     if (error instanceof Error) {
