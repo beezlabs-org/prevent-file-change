@@ -1,10 +1,7 @@
-import * as core from '@actions/core'
+import core from '@actions/core'
 import {IFile} from './github-services'
 
-export async function checkChangedFilesAgainstPattern(
-  files: IFile[],
-  pattern: string
-): Promise<void> {
+export async function checkChangedFilesAgainstPattern(files: IFile[], pattern: string): Promise<void> {
   if (files?.length > 0) {
     const regExp = new RegExp(pattern)
     files.some(file => regExp.test(file.filename))

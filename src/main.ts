@@ -1,7 +1,7 @@
-import * as core from '@actions/core'
+import core from '@actions/core'
 import {context} from '@actions/github'
 import {GitHubService, IFile} from './github-services'
-import * as PatternMatcher from './pattern-matcher'
+import {checkChangedFilesAgainstPattern} from './pattern-matcher'
 
 async function run(): Promise<void> {
   try {
@@ -14,14 +14,10 @@ async function run(): Promise<void> {
     const pullRequestAuthor = context.actor
     const eventName = context.eventName
 
-    core.debug(
-      `Event='${eventName}', Author='${pullRequestAuthor}', Trusted Authors='${trustedAuthors}'`
-    )
+    core.debug(`Event='${eventName}', Author='${pullRequestAuthor}', Trusted Authors='${trustedAuthors}'`)
 
     if (await isTrustedAuthor(pullRequestAuthor, trustedAuthors)) {
-      core.info(
-        `${pullRequestAuthor} is a trusted author and is allowed to modify any matching files.`
-      )
+      core.info(`${pullRequestAuthor} is a trusted author and is allowed to modify any matching files.`)
     } else if (eventName === 'pull_request') {
       const gitHubService = new GitHubService(githubToken)
       const pullRequestNumber = context.payload?.pull_request?.number || 0
@@ -31,14 +27,12 @@ async function run(): Promise<void> {
           context.repo.repo,
           pullRequestNumber
         )
-        await PatternMatcher.checkChangedFilesAgainstPattern(files, pattern)
+        await checkChangedFilesAgainstPattern(files, pattern)
       } else {
         core.setFailed('Pull request number is missing in github event payload')
       }
     } else {
-      core.setFailed(
-        `Only pull_request events are supported. Event was: ${eventName}`
-      )
+      core.setFailed(`Only pull_request events are supported. Event was: ${eventName}`)
     }
   } catch (error) {
     if (error instanceof Error) {
@@ -49,10 +43,7 @@ async function run(): Promise<void> {
   }
 }
 
-export async function isTrustedAuthor(
-  pullRequestAuthor: string,
-  trustedAuthors: string
-): Promise<boolean> {
+export async function isTrustedAuthor(pullRequestAuthor: string, trustedAuthors: string): Promise<boolean> {
   if (!trustedAuthors) {
     return false
   }

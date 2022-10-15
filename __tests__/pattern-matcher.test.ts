@@ -1,16 +1,8 @@
-import * as core from '@actions/core'
+import core from '@actions/core'
 import {IFile} from '../src/github-services'
-import {PatternMatcher} from '../src/pattern-matcher'
-import {
-  expect,
-  test,
-  beforeEach,
-  afterEach,
-  describe,
-  jest
-} from '@jest/globals'
+import {checkChangedFilesAgainstPattern} from '../src/pattern-matcher'
+import {expect, test, beforeEach, afterEach, describe, jest} from '@jest/globals'
 
-let patternMatcher: PatternMatcher
 const coreDebugSpy = jest.fn(() => {})
 const coreSetFailedSpy = jest.fn(() => {})
 
@@ -18,7 +10,6 @@ describe('pattern-matcher', () => {
   beforeEach(() => {
     jest.spyOn(core, 'debug').mockImplementation(coreDebugSpy)
     jest.spyOn(core, 'setFailed').mockImplementation(coreSetFailedSpy)
-    patternMatcher = new PatternMatcher()
   })
 
   afterEach(() => {
@@ -27,9 +18,9 @@ describe('pattern-matcher', () => {
 
   test('if matching pattern is rejected', async () => {
     const files: IFile[] = givenFiles()
-    const pattern: string = '.*.js'
+    const pattern = '.*.js'
 
-    await patternMatcher.checkChangedFilesAgainstPattern(files, pattern)
+    await checkChangedFilesAgainstPattern(files, pattern)
 
     expect(coreSetFailedSpy).toHaveBeenCalledTimes(1)
     expect(coreDebugSpy).toHaveBeenCalledTimes(0)
@@ -37,9 +28,9 @@ describe('pattern-matcher', () => {
 
   test('if non matching pattern is not rejected', async () => {
     const files: IFile[] = givenFiles()
-    const pattern: string = '.*.ts'
+    const pattern = '.*.ts'
 
-    await patternMatcher.checkChangedFilesAgainstPattern(files, pattern)
+    await checkChangedFilesAgainstPattern(files, pattern)
 
     expect(coreSetFailedSpy).toHaveBeenCalledTimes(0)
     expect(coreDebugSpy).toHaveBeenCalledTimes(1)
@@ -47,9 +38,9 @@ describe('pattern-matcher', () => {
 
   test('if empty commit is not rejected', async () => {
     const files: IFile[] = []
-    const pattern: string = '.*'
+    const pattern = '.*'
 
-    await patternMatcher.checkChangedFilesAgainstPattern(files, pattern)
+    await checkChangedFilesAgainstPattern(files, pattern)
 
     expect(coreSetFailedSpy).toHaveBeenCalledTimes(0)
     expect(coreDebugSpy).toHaveBeenCalledTimes(1)
