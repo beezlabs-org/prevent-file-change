@@ -1,34 +1,41 @@
 require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
+/***/ 9859:
+/***/ (function(__unused_webpack_module, exports) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.isTrustedAuthor = void 0;
+function isTrustedAuthor(pullRequestAuthor, trustedAuthors) {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (!trustedAuthors) {
+            return false;
+        }
+        const authors = trustedAuthors.split(',').map(author => author.trim());
+        return authors.includes(pullRequestAuthor);
+    });
+}
+exports.isTrustedAuthor = isTrustedAuthor;
+
+
+/***/ }),
+
 /***/ 6776:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
 
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -40,7 +47,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.GitHubService = void 0;
-const core = __importStar(__nccwpck_require__(2186));
+const core_1 = __nccwpck_require__(2186);
 const github_1 = __nccwpck_require__(5438);
 class GitHubService {
     constructor(gitHubToken) {
@@ -57,7 +64,7 @@ class GitHubService {
             for (const file of responseBody) {
                 files.push({ filename: file.filename });
             }
-            core.debug(`Pull request ${pullRequestNumber} includes following files: ${JSON.stringify(files)}`);
+            (0, core_1.debug)(`Pull request ${pullRequestNumber} includes following files: ${JSON.stringify(files)}`);
             return files;
         });
     }
@@ -72,29 +79,6 @@ exports.GitHubService = GitHubService;
 
 "use strict";
 
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -105,62 +89,50 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.isTrustedAuthor = void 0;
-const core = __importStar(__nccwpck_require__(2186));
+const core_1 = __nccwpck_require__(2186);
+const github_1 = __nccwpck_require__(5438);
+const author_checker_1 = __nccwpck_require__(9859);
 const github_services_1 = __nccwpck_require__(6776);
 const pattern_matcher_1 = __nccwpck_require__(2989);
-const github_1 = __nccwpck_require__(5438);
 function run() {
     var _a, _b;
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const trustedAuthors = core.getInput('trusted-authors');
+            const trustedAuthors = (0, core_1.getInput)('trusted-authors');
+            const pattern = (0, core_1.getInput)('pattern', { required: true });
+            const githubToken = (0, core_1.getInput)('token', { required: true });
+            (0, core_1.debug)('Inputs received');
             const pullRequestAuthor = github_1.context.actor;
             const eventName = github_1.context.eventName;
-            core.debug(`Event='${eventName}', Author='${pullRequestAuthor}', Trusted Authors='${trustedAuthors}'`);
-            if (yield isTrustedAuthor(pullRequestAuthor, trustedAuthors)) {
-                core.info(`${pullRequestAuthor} is a trusted author and is allowed to modify any matching files.`);
+            (0, core_1.debug)(`Event='${eventName}', Author='${pullRequestAuthor}', Trusted Authors='${trustedAuthors}'`);
+            if (yield (0, author_checker_1.isTrustedAuthor)(pullRequestAuthor, trustedAuthors)) {
+                (0, core_1.info)(`${pullRequestAuthor} is a trusted author and is allowed to modify any matching files.`);
             }
             else if (eventName === 'pull_request') {
-                const githubToken = core.getInput('token', { required: true });
                 const gitHubService = new github_services_1.GitHubService(githubToken);
                 const pullRequestNumber = ((_b = (_a = github_1.context.payload) === null || _a === void 0 ? void 0 : _a.pull_request) === null || _b === void 0 ? void 0 : _b.number) || 0;
                 if (pullRequestNumber) {
                     const files = yield gitHubService.getChangedFiles(github_1.context.repo.owner, github_1.context.repo.repo, pullRequestNumber);
-                    const pattern = core.getInput('pattern', { required: true });
-                    const patternMatcher = new pattern_matcher_1.PatternMatcher();
-                    yield patternMatcher.checkChangedFilesAgainstPattern(files, pattern);
+                    yield (0, pattern_matcher_1.checkChangedFilesAgainstPattern)(files, pattern);
                 }
                 else {
-                    core.setFailed('Pull request number is missing in github event payload');
+                    (0, core_1.setFailed)('Pull request number is missing in github event payload');
                 }
             }
             else {
-                core.setFailed(`Only pull_request events are supported. Event was: ${eventName}`);
+                (0, core_1.setFailed)(`Only pull_request events are supported. Event was: ${eventName}`);
             }
         }
         catch (error) {
             if (error instanceof Error) {
-                core.setFailed(error.message);
+                (0, core_1.setFailed)(error.message);
             }
             else {
-                core.setFailed('Unknown error occurred');
+                (0, core_1.setFailed)('Unknown error occurred');
             }
         }
     });
 }
-function isTrustedAuthor(pullRequestAuthor, trustedAuthors) {
-    return __awaiter(this, void 0, void 0, function* () {
-        if (!trustedAuthors) {
-            return false;
-        }
-        const authors = trustedAuthors
-            .split(',')
-            .map((author) => author.trim());
-        return authors.includes(pullRequestAuthor);
-    });
-}
-exports.isTrustedAuthor = isTrustedAuthor;
 run();
 
 
@@ -171,29 +143,6 @@ run();
 
 "use strict";
 
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -204,29 +153,27 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.PatternMatcher = void 0;
-const core = __importStar(__nccwpck_require__(2186));
-class PatternMatcher {
-    checkChangedFilesAgainstPattern(files, pattern) {
-        return __awaiter(this, void 0, void 0, function* () {
-            if ((files === null || files === void 0 ? void 0 : files.length) > 0) {
-                const regExp = new RegExp(pattern);
-                files.some(file => regExp.test(file.filename))
-                    ? yield PatternMatcher.setFailed(pattern)
-                    : core.debug(`There isn't any file matching the pattern ${pattern}`);
-            }
-            else
-                core.debug(`This commit doesn't contain any files`);
-        });
-    }
-    static setFailed(pattern) {
-        return __awaiter(this, void 0, void 0, function* () {
-            core.setFailed(`There is at least one file matching the pattern ${pattern}`);
-            return;
-        });
-    }
+exports.checkChangedFilesAgainstPattern = void 0;
+const core_1 = __nccwpck_require__(2186);
+function checkChangedFilesAgainstPattern(files, pattern) {
+    return __awaiter(this, void 0, void 0, function* () {
+        if ((files === null || files === void 0 ? void 0 : files.length) > 0) {
+            const regExp = new RegExp(pattern);
+            files.some(file => regExp.test(file.filename))
+                ? yield setPatternFailed(pattern)
+                : (0, core_1.debug)(`There isn't any file matching the pattern ${pattern}`);
+        }
+        else
+            (0, core_1.debug)(`This commit doesn't contain any files`);
+    });
 }
-exports.PatternMatcher = PatternMatcher;
+exports.checkChangedFilesAgainstPattern = checkChangedFilesAgainstPattern;
+function setPatternFailed(pattern) {
+    return __awaiter(this, void 0, void 0, function* () {
+        (0, core_1.setFailed)(`There is at least one file matching the pattern ${pattern}`);
+        return;
+    });
+}
 
 
 /***/ }),

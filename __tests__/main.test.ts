@@ -1,4 +1,4 @@
-import {isTrustedAuthor} from '../src/main'
+import {isTrustedAuthor} from '../src/author-checker'
 import {expect, test} from '@jest/globals'
 
 test('if trusted author is allowed', async () => {

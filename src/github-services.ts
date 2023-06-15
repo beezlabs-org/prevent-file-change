@@ -1,4 +1,4 @@
-import core from '@actions/core'
+import {debug} from '@actions/core'
 import {getOctokit} from '@actions/github'
 
 export interface IFile {
@@ -24,7 +24,7 @@ export class GitHubService {
       files.push({filename: file.filename} as IFile)
     }
 
-    core.debug(`Pull request ${pullRequestNumber} includes following files: ${JSON.stringify(files)}`)
+    debug(`Pull request ${pullRequestNumber} includes following files: ${JSON.stringify(files)}`)
 
     return files
   }
