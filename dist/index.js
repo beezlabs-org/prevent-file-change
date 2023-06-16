@@ -2,29 +2,18 @@ require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
 /***/ 9859:
-/***/ (function(__unused_webpack_module, exports) {
+/***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
 
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.isTrustedAuthor = void 0;
 function isTrustedAuthor(pullRequestAuthor, trustedAuthors) {
-    return __awaiter(this, void 0, void 0, function* () {
-        if (!trustedAuthors) {
-            return false;
-        }
-        const authors = trustedAuthors.split(',').map(author => author.trim());
-        return authors.includes(pullRequestAuthor);
-    });
+    if (!trustedAuthors) {
+        return false;
+    }
+    const authors = trustedAuthors.split(',').map(author => author.trim());
+    return authors.includes(pullRequestAuthor);
 }
 exports.isTrustedAuthor = isTrustedAuthor;
 
@@ -60,10 +49,9 @@ class GitHubService {
                 repo: repositoryName,
                 pull_number: pullRequestNumber
             });
-            const files = [];
-            for (const file of responseBody) {
-                files.push({ filename: file.filename });
-            }
+            const files = responseBody.map(file => {
+                return { filename: file.filename };
+            });
             (0, core_1.debug)(`Pull request ${pullRequestNumber} includes following files: ${JSON.stringify(files)}`);
             return files;
         });
@@ -105,23 +93,21 @@ function run() {
             const pullRequestAuthor = github_1.context.actor;
             const eventName = github_1.context.eventName;
             (0, core_1.debug)(`Event='${eventName}', Author='${pullRequestAuthor}', Trusted Authors='${trustedAuthors}'`);
-            if (yield (0, author_checker_1.isTrustedAuthor)(pullRequestAuthor, trustedAuthors)) {
+            if (eventName !== 'pull_request') {
+                (0, core_1.setFailed)(`Only pull_request events are supported. Event was: ${eventName}`);
+                return;
+            }
+            if ((0, author_checker_1.isTrustedAuthor)(pullRequestAuthor, trustedAuthors)) {
                 (0, core_1.info)(`${pullRequestAuthor} is a trusted author and is allowed to modify any matching files.`);
             }
-            else if (eventName === 'pull_request') {
-                const gitHubService = new github_services_1.GitHubService(githubToken);
-                const pullRequestNumber = ((_b = (_a = github_1.context.payload) === null || _a === void 0 ? void 0 : _a.pull_request) === null || _b === void 0 ? void 0 : _b.number) || 0;
-                if (pullRequestNumber) {
-                    const files = yield gitHubService.getChangedFiles(github_1.context.repo.owner, github_1.context.repo.repo, pullRequestNumber);
-                    yield (0, pattern_matcher_1.checkChangedFilesAgainstPattern)(files, pattern);
-                }
-                else {
-                    (0, core_1.setFailed)('Pull request number is missing in github event payload');
-                }
+            const gitHubService = new github_services_1.GitHubService(githubToken);
+            const pullRequestNumber = ((_b = (_a = github_1.context.payload) === null || _a === void 0 ? void 0 : _a.pull_request) === null || _b === void 0 ? void 0 : _b.number) || 0;
+            if (!pullRequestNumber) {
+                (0, core_1.setFailed)('Pull request number is missing in github event payload');
+                return;
             }
-            else {
-                (0, core_1.setFailed)(`Only pull_request events are supported. Event was: ${eventName}`);
-            }
+            const files = yield gitHubService.getChangedFiles(github_1.context.repo.owner, github_1.context.repo.repo, pullRequestNumber);
+            (0, pattern_matcher_1.checkChangedFilesAgainstPattern)(files, pattern);
         }
         catch (error) {
             if (error instanceof Error) {
@@ -139,41 +125,25 @@ run();
 /***/ }),
 
 /***/ 2989:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.checkChangedFilesAgainstPattern = void 0;
 const core_1 = __nccwpck_require__(2186);
 function checkChangedFilesAgainstPattern(files, pattern) {
-    return __awaiter(this, void 0, void 0, function* () {
-        if ((files === null || files === void 0 ? void 0 : files.length) > 0) {
-            const regExp = new RegExp(pattern);
-            files.some(file => regExp.test(file.filename))
-                ? yield setPatternFailed(pattern)
-                : (0, core_1.debug)(`There isn't any file matching the pattern ${pattern}`);
-        }
-        else
-            (0, core_1.debug)(`This commit doesn't contain any files`);
-    });
+    if (!files || (files === null || files === void 0 ? void 0 : files.length) === 0) {
+        (0, core_1.debug)(`This commit doesn't contain any files`);
+        return;
+    }
+    const regExp = new RegExp(pattern);
+    if (files.some(file => regExp.test(file.filename))) {
+        throw new Error(`There is at least one file matching the pattern ${pattern}`);
+    }
+    (0, core_1.debug)(`There isn't any file matching the pattern ${pattern}`);
 }
 exports.checkChangedFilesAgainstPattern = checkChangedFilesAgainstPattern;
-function setPatternFailed(pattern) {
-    return __awaiter(this, void 0, void 0, function* () {
-        (0, core_1.setFailed)(`There is at least one file matching the pattern ${pattern}`);
-        return;
-    });
-}
 
 
 /***/ }),
