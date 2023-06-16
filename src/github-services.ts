@@ -19,10 +19,9 @@ export class GitHubService {
       pull_number: pullRequestNumber
     })
 
-    const files: IFile[] = []
-    for (const file of responseBody) {
-      files.push({filename: file.filename} as IFile)
-    }
+    const files = responseBody.map(file => {
+      return {filename: file.filename}
+    })
 
     debug(`Pull request ${pullRequestNumber} includes following files: ${JSON.stringify(files)}`)
 
