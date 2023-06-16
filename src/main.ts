@@ -17,24 +17,23 @@ async function run(): Promise<void> {
 
     debug(`Event='${eventName}', Author='${pullRequestAuthor}', Trusted Authors='${trustedAuthors}'`)
 
-    if (await isTrustedAuthor(pullRequestAuthor, trustedAuthors)) {
-      info(`${pullRequestAuthor} is a trusted author and is allowed to modify any matching files.`)
-    } else if (eventName === 'pull_request') {
-      const gitHubService = new GitHubService(githubToken)
-      const pullRequestNumber = context.payload?.pull_request?.number || 0
-      if (pullRequestNumber) {
-        const files: IFile[] = await gitHubService.getChangedFiles(
-          context.repo.owner,
-          context.repo.repo,
-          pullRequestNumber
-        )
-        await checkChangedFilesAgainstPattern(files, pattern)
-      } else {
-        setFailed('Pull request number is missing in github event payload')
-      }
-    } else {
+    if (eventName !== 'pull_request') {
       setFailed(`Only pull_request events are supported. Event was: ${eventName}`)
+      return
     }
+
+    if (isTrustedAuthor(pullRequestAuthor, trustedAuthors)) {
+      info(`${pullRequestAuthor} is a trusted author and is allowed to modify any matching files.`)
+    }
+
+    const gitHubService = new GitHubService(githubToken)
+    const pullRequestNumber = context.payload?.pull_request?.number || 0
+    if (!pullRequestNumber) {
+      setFailed('Pull request number is missing in github event payload')
+      return
+    }
+    const files: IFile[] = await gitHubService.getChangedFiles(context.repo.owner, context.repo.repo, pullRequestNumber)
+    checkChangedFilesAgainstPattern(files, pattern)
   } catch (error) {
     if (error instanceof Error) {
       setFailed(error.message)

@@ -1,4 +1,4 @@
-export async function isTrustedAuthor(pullRequestAuthor: string, trustedAuthors: string): Promise<boolean> {
+export function isTrustedAuthor(pullRequestAuthor: string, trustedAuthors: string): boolean {
   if (!trustedAuthors) {
     return false
   }
