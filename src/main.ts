@@ -24,6 +24,7 @@ async function run(): Promise<void> {
 
     if (isTrustedAuthor(pullRequestAuthor, trustedAuthors)) {
       info(`${pullRequestAuthor} is a trusted author and is allowed to modify any matching files.`)
+      return
     }
 
     const gitHubService = new GitHubService(githubToken)
